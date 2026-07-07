@@ -1,70 +1,28 @@
-var players = new List<Player>();
+﻿namespace WorldRank;
 
-while (true)
+public class Player
 {
-    Console.WriteLine("Choose an action:");
-    Console.WriteLine("Type 1 if you want to add a player.");
-    Console.WriteLine("Type 2 if you want to list all players.");
-    Console.WriteLine("Type 3 if you want to find a specific player.");
-    Console.WriteLine("Type 4 if you want to exit.");
-    Console.Write("Pick an action: ");
+    public Guid Id { get; }
+    public string Name { get; set; }
+    public int Score { get; private set; }
 
-    var action = Console.ReadLine();
+    public Player(string name)
+	{
+		if (string.IsNullOrEmpty(name))
+			throw new ArgumentException("Name cannot be null or empty.", nameof(name));
 
-    if (action == "4")
-    {
-        Console.WriteLine("Goodbye");
-        break;
-    }
+		Id = Guid.NewGuid();
+		Name = name;
+	}
 
-    switch (action)
-    {
-        case "1":
-            // checkarw edw gia keno h null kai oxi ston constractor gia na min exw 2 elenxous
-            string? name;
-            do
-            {
-                 Console.Write("Enter name: ");
-                 name = Console.ReadLine();
-            } while (string.IsNullOrWhiteSpace(name));
+    public void UpdateScore(int newScore)
+	{
+		if (newScore < 0)
+			throw new ArgumentOutOfRangeException(nameof(newScore), "Score cannot be negative.");
 
-            players.Add(new Player(name));
-            Console.WriteLine($"Player {name} added in the list.");
-            break;
+		Score = newScore;
+	}
 
-        case "2":
-            if (players.Count == 0)
-            {
-                Console.WriteLine("No players inside the list yet.");
-                break;
-            }
-            foreach (var player in players)
-            {
-                Console.WriteLine(player.Name);
-            }
-            break;
-
-        case "3":
-            string? search;
-            do
-            {
-                Console.Write("Give me a player you want to find: ");
-                search = Console.ReadLine();
-            } while (string.IsNullOrWhiteSpace(search));
-
-            var find = players.FirstOrDefault(p => p.Name == search);
-
-            if (find is null)
-            {
-                Console.WriteLine("Player doesnt exist.");
-                break;
-            }
-
-            Console.WriteLine($"Found: {find.Name}");
-            break;
-
-        default:
-            Console.WriteLine("Invalid option. Try again.");
-            break;
-    }
+	public override string ToString() =>
+			$"[{Id}] {Name} - Score: {Score}";
 }
