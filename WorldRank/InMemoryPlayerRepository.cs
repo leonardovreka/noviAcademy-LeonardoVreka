@@ -5,12 +5,12 @@ public class InMemoryPlayerRepository : IPlayerRepository
     private readonly List<Player> _players = new();
     private int _nextId = 1;
 
-    public Player AddPlayer(Player player)
+    public Player AddPlayer(string name, int score)
     {
-        var newPlayer = new Player(_nextId++, player.Name);
-        newPlayer.UpdateScore(player.Score);
-        _players.Add(newPlayer);
-        return newPlayer;
+        var player = new Player(_nextId++, name);
+        player.UpdateScore(score);
+        _players.Add(player);
+        return player;
     }
 
     public Player? FindPlayer(int playerId)

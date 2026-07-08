@@ -2,6 +2,6 @@ namespace WorldRank;
 
 public interface IWalletRepository
 {
-    void Add(Wallet wallet, int playerId);
-    IReadOnlyCollection<Wallet> GetByPlayer(int playerId);
+    void Add(IWallet wallet, int playerId);
+    IReadOnlyCollection<IWallet> GetByPlayer(int playerId);
 }

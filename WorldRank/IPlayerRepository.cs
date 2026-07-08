@@ -2,7 +2,7 @@ namespace WorldRank;
 
 public interface IPlayerRepository
 {
-    Player AddPlayer(Player player);
+    Player AddPlayer(string name, int score);
     Player? FindPlayer(int playerId);
     void DeletePlayer(int playerId);
     IReadOnlyCollection<Player> GetAll();

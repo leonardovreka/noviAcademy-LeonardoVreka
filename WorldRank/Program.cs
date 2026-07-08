@@ -1,7 +1,7 @@
 using WorldRank;
 
 IPlayerRepository playerRepo = new InMemoryPlayerRepository();
-IWalletRepository walletRepo = new InMemoryWalletRepository();
+IWalletRepository walletRepo = new InMemoryWalletRepository(playerRepo);
 
 while (true)
 {
@@ -14,12 +14,13 @@ while (true)
     Console.WriteLine("5  - Add a wallet to a player");
     Console.WriteLine("6  - Deposit into a wallet");
     Console.WriteLine("7  - List a player's wallets");
-    Console.WriteLine("8 - Exit");
+    Console.WriteLine("8  - Withdraw money from a wallet");
+    Console.WriteLine("9 - Exit");
     Console.Write("Pick an action: ");
 
     var action = Console.ReadLine();
 
-    if (action == "8")
+    if (action == "9")
     {
         Console.WriteLine("Goodbye");
         break;
@@ -38,10 +39,7 @@ while (true)
                 break;
             }
 
-            var toAdd = new Player(0, name);
-            toAdd.UpdateScore(score);
-            var created = playerRepo.AddPlayer(toAdd);
-
+            var created = playerRepo.AddPlayer(name, score);
             Console.WriteLine($"Player '{created.Name}' added with ID {created.Id}.");
             break;
         }
@@ -92,7 +90,6 @@ while (true)
             try
             {
                 var wallet = new Wallet(currency.Value);
-                player.AddWallet(wallet);        // enforces one-per-currency
                 walletRepo.Add(wallet, player.Id);
                 Console.WriteLine($"{currency} wallet added to player {player.Id}.");
             }
@@ -143,12 +140,30 @@ while (true)
             break;
         }
 
+        case "8":
+        {
+            var wallet = SelectWallet();
+            if (wallet is null)
+                break;
+
+            var amount = AskDecimal("Amount to withdraw: ");
+            try
+            {
+                wallet.Withdraw(amount);
+                Console.WriteLine($"Withdrawn. New balance: {wallet.Balance} {wallet.Currency}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            break;
+        }
+
         default:
             Console.WriteLine("Invalid option. Try again.");
             break;
     }
-
-    // ---- helper functions ----
+}
 
     string AskNonEmpty(string prompt)
     {
@@ -194,7 +209,7 @@ while (true)
         return null;
     }
 
-    Wallet? SelectWallet()
+    IWallet? SelectWallet()
     {
         var id = AskInt("Enter player ID: ");
         var player = playerRepo.FindPlayer(id);
@@ -220,4 +235,3 @@ while (true)
             Console.WriteLine($"Player has no {currency} wallet.");
         return wallet;
     }
-}

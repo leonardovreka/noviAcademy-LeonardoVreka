@@ -1,6 +1,6 @@
 namespace WorldRank;
 
-public class Wallet
+public class Wallet : IWallet
 {
     public decimal Balance { get; private set; }
     public Currency Currency { get; }
