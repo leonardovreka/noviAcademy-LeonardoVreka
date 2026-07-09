@@ -58,7 +58,13 @@ namespace Domain.Entities
 
 			Balance = newBalance;
 		}
+		public void ForceWithdraw(decimal amount)
+        {
 
-		public override string ToString() => $"Balance -> {Balance} Currency -> {Currency} IsBlocked -> {IsBlocked}";
+            if (IsBlocked)
+                throw new WalletBlockedException(Currency);
+            Balance -= amount;
+        }
+        public override string ToString() => $"Balance -> {Balance} Currency -> {Currency} IsBlocked -> {IsBlocked}";
 	}
 }
