@@ -1,7 +1,9 @@
+using Application.Interfaces;
+using Domain.Entities;
+using Domain.Enums;
+using Domain.Exceptions;
+using Infrastructure.Repositories;
 using NLog;
-using WorldRank.Console;
-using WorldRank.Console.Enums;
-using WorldRank.Console.Exceptions;
 
 var logger = LogManager.GetCurrentClassLogger();
 
