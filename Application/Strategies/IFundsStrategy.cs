@@ -2,7 +2,7 @@
 
 namespace Application.Strategies
 {
-    internal interface IFundsStrategy
+    public interface IFundsStrategy
     {
         FundsOperation Operation { get; }
 

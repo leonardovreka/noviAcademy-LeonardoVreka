@@ -3,7 +3,7 @@
     public enum FundsOperation
     {
         Add,
-        Substract,
-        ForcedSubstract
+        Subtract,
+        ForceSubtract
     }
 }

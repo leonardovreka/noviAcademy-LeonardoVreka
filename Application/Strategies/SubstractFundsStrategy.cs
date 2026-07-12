@@ -2,9 +2,9 @@
 
 namespace Application.Strategies
 {
-    internal class SubstractFundsStrategy : IFundsStrategy
+    internal class SubtractFundsStrategy : IFundsStrategy
     {
-        public FundsOperation Operation => FundsOperation.Substract;
+        public FundsOperation Operation => FundsOperation.Subtract;
 
         public void Execute(Wallet wallet, decimal amount) => wallet.Withdraw(amount);
     }
