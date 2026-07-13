@@ -13,8 +13,8 @@ public static class DependencyInjection
         services.AddDbContext<WorldRankDbContext>(options =>
             options.UseSqlServer("Server=localhost;Database=WorldRank;Integrated Security=true;TrustServerCertificate=true"));
 
-        services.AddSingleton<IPlayerRepository, InMemoryPlayerRepository>();
-        services.AddSingleton<IWalletRepository, InMemoryWalletRepository>();
+        services.AddScoped<IPlayerRepository, DBPlayerRepository>();
+        services.AddScoped<IWalletRepository, DBWalletRepository>();
 
         return services;
     }

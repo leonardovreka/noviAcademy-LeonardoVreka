@@ -1,5 +1,6 @@
 using Application.Interfaces;
 using Domain.Entities;
+using Microsoft.Extensions.Caching.Memory;
 using NLog;
 
 namespace Infrastructure.Repositories
@@ -8,11 +9,14 @@ namespace Infrastructure.Repositories
 	{
 		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
-		private List<Player> _players;
+        private readonly IMemoryCache _cache;
 
-		public InMemoryPlayerRepository()
+        private List<Player> _players;
+
+		public InMemoryPlayerRepository(IMemoryCache cache)
 		{
 			_players = new List<Player>();
+			_cache = cache;
 		}
 
 		public void AddPlayer(Player player)
@@ -21,13 +25,21 @@ namespace Infrastructure.Repositories
 			_logger.Info("Player {PlayerId} ({Name}) added with score {Score}", player.Id, player.Name, player.Score);
 		}
 
-		public IEnumerable<Player> GetAllPlayers()
-		{
-			// Return a copy so callers cannot mutate the repository's internal list.
-			return _players.ToList();
-		}
+        public IEnumerable<Player> GetAllPlayers()
+        {
+            if (_cache.TryGetValue("AllPlayersKey", out IReadOnlyList<Player>? cached) && cached is not null)
+            {
+                return cached;
+            }
 
-		public void DeletePlayer(int playerId)
+            var players = _players.ToList();
+
+            _cache.Set("AllPlayersKey", players, TimeSpan.FromSeconds(60));
+
+            return players;
+        }
+
+        public void DeletePlayer(int playerId)
 		{
 			var player = _players.Where(item => item.Id == playerId).FirstOrDefault();
 
