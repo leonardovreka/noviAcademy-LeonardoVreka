@@ -2,11 +2,16 @@ namespace Domain.Entities;
 
 public class Player : IPlayer
 {
-	public int Id { get; }
+	public int Id { get; private set; }
 	public string Name { get; private set; }
 	public int Score { get; private set; }
 
-	public Player(int id, string name)
+    private Player()
+    {
+        Name = string.Empty;
+    }
+
+    public Player(int id, string name)
 	{
 		if (string.IsNullOrWhiteSpace(name))
 			throw new ArgumentException("Name cannot be empty.", nameof(name));
