@@ -1,7 +1,7 @@
-using WorldRank.Console.Enums;
-using WorldRank.Console.Exceptions;
+using Domain.Enums;
+using Domain.Exceptions;
 
-namespace WorldRank.Console
+namespace Domain.Entities
 {
 	public class Wallet : IWallet
 	{
@@ -58,7 +58,13 @@ namespace WorldRank.Console
 
 			Balance = newBalance;
 		}
+		public void ForceWithdraw(decimal amount)
+        {
 
-		public override string ToString() => $"Balance -> {Balance} Currency -> {Currency} IsBlocked -> {IsBlocked}";
+            if (IsBlocked)
+                throw new WalletBlockedException(Currency);
+            Balance -= amount;
+        }
+        public override string ToString() => $"Balance -> {Balance} Currency -> {Currency} IsBlocked -> {IsBlocked}";
 	}
 }

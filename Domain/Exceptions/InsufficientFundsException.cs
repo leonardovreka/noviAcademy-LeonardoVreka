@@ -1,4 +1,4 @@
-namespace WorldRank.Console.Exceptions
+namespace Domain.Exceptions
 {
 	public class InsufficientFundsException : WalletException
 	{

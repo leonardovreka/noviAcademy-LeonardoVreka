@@ -1,6 +1,7 @@
-using WorldRank.Console.Enums;
+using Domain.Entities;
+using Domain.Enums;
 
-namespace WorldRank.Console
+namespace Application.Interfaces
 {
 	public interface IWalletRepository
 	{
@@ -8,7 +9,9 @@ namespace WorldRank.Console
 
 		List<Wallet> GetAllWalletsByPlayerId(int playerId);
 
-		void UpdateBalance(int playerId, Currency currency, decimal newBalance);
+        Wallet GetWallet(int playerId, Currency currency);
+
+        void UpdateBalance(int playerId, Currency currency, decimal newBalance);
 
 		void Deposit(int playerId, Currency currency, decimal amount);
 
