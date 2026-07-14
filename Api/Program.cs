@@ -1,11 +1,11 @@
 using Application.Interfaces;
 using Application.Services;
 using Application.Strategies;
+using Infrastructure;
 using Infrastructure.Persistence.Context;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using NLog.Extensions.Logging;
-using System.Data.Common;
 using System.Text.Json.Serialization;
 
 
@@ -34,6 +34,7 @@ builder.Services.AddScoped<IWalletRepository, DBWalletRepository>();
 
 // Single-instance in-memory cache (Day 6). Redis would replace this behind a load balancer.
 builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<ICache, MemoryCacheStore>();
 
 // Accept/emit enums (e.g. Currency) as their string names, not numbers.
 builder.Services.AddControllers()

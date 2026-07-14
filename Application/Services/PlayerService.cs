@@ -12,7 +12,7 @@ public class PlayerService
         _playerRepository = playerRepository;
     }
 
-    public void AddPlayer()
+    public async Task AddPlayer()
     {
         Console.Write("Name: ");
         var name = Console.ReadLine();
@@ -30,15 +30,15 @@ public class PlayerService
             return;
         }
 
-        var player = new Player(GeneratePlayerId(), name);
+        var player = new Player(await GeneratePlayerId(), name);
         player.AddScore(score);
-        _playerRepository.AddPlayer(player);
+        await _playerRepository.AddPlayer(player);
         Console.WriteLine("Player added successfully.");
     }
 
-    public void ListPlayers()
+    public async Task ListPlayers()
     {
-        var all = _playerRepository.GetAllPlayers().ToList();
+        var all = (await _playerRepository.GetAllPlayers()).ToList();
 
         if (all.Count == 0)
         {
@@ -50,9 +50,9 @@ public class PlayerService
             Console.WriteLine(player);
     }
 
-    public void ListPlayersByScore()
+    public async Task ListPlayersByScore()
     {
-        var groups = _playerRepository.GroupPlayersByScore().ToList();
+        var groups = (await _playerRepository.GroupPlayersByScore()).ToList();
 
         if (groups.Count == 0)
         {
@@ -68,42 +68,41 @@ public class PlayerService
         }
     }
 
-    public void FindPlayerByName()
+    public async Task FindPlayerByName()
     {
         Console.Write("Search by name: ");
         var term = Console.ReadLine() ?? string.Empty;
 
-        var player = _playerRepository.GetAllPlayers()
+        var player = (await _playerRepository.GetAllPlayers())
             .FirstOrDefault(p => p.Name.Equals(term, StringComparison.OrdinalIgnoreCase));
 
         Console.WriteLine(player is null ? "No player found." : player.ToString());
     }
 
-    public void FindPlayerById()
+    public async Task FindPlayerById()
     {
         var playerId = Prompts.PromptPlayerId();
         if (playerId is null)
             return;
 
-        var player = _playerRepository.FindPlayer(playerId.Value);
+        var player = await _playerRepository.FindPlayer(playerId.Value);
 
         Console.WriteLine(player is null ? "No player found." : player.ToString());
     }
 
-    public void DeletePlayer()
+    public async Task DeletePlayer()
     {
         var playerId = Prompts.PromptPlayerId();
         if (playerId is null)
             return;
 
-        _playerRepository.DeletePlayer(playerId.Value);
+        await _playerRepository.DeletePlayer(playerId.Value);
         Console.WriteLine("Player deleted (if it existed).");
     }
 
-    // Generates a random, unique player id (avoids collisions with already-registered players).
-    private int GeneratePlayerId()
+    private async Task<int> GeneratePlayerId()
     {
-        var existingIds = _playerRepository.GetAllPlayers().Select(p => p.Id).ToHashSet();
+        var existingIds = (await _playerRepository.GetAllPlayers()).Select(p => p.Id).ToHashSet();
 
         int id;
         do

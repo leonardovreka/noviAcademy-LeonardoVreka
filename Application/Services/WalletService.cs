@@ -22,12 +22,10 @@ public class WalletService
         _walletRepository = walletRepository;
         _playerRepository = playerRepository;
         _logger = logger;
-
-        // Index every registered strategy by the operation it implements.
         _fundsStrategies = strategies.ToDictionary(strategy => strategy.Operation);
     }
 
-    public void AddWalletToPlayer()
+    public async Task AddWalletToPlayer()
     {
         var playerId = Prompts.PromptPlayerId();
         if (playerId is null)
@@ -43,11 +41,11 @@ public class WalletService
 
         try
         {
-            if (_playerRepository.FindPlayer(playerId.Value) is null)
+            if (await _playerRepository.FindPlayer(playerId.Value) is null)
                 throw new PlayerNotFoundException(playerId.Value);
 
             var wallet = new Wallet(playerId.Value, currency.Value, balance.Value);
-            _walletRepository.Add(wallet);
+            await _walletRepository.Add(wallet);
             Console.WriteLine("Wallet added successfully.");
         }
         catch (PlayerNotFoundException ex)
@@ -62,13 +60,13 @@ public class WalletService
         }
     }
 
-    public void GetWalletsOfPlayer()
+    public async Task GetWalletsOfPlayer()
     {
         var playerId = Prompts.PromptPlayerId();
         if (playerId is null)
             return;
 
-        var wallets = _walletRepository.GetAllWalletsByPlayerId(playerId.Value);
+        var wallets = await _walletRepository.GetAllWalletsByPlayerId(playerId.Value);
 
         if (wallets.Count == 0)
         {
@@ -80,7 +78,7 @@ public class WalletService
             Console.WriteLine($"Wallet Number {wallets.IndexOf(wallet)} {wallet}");
     }
 
-    public void DepositToWallet()
+    public async Task DepositToWallet()
     {
         var playerId = Prompts.PromptPlayerId();
         if (playerId is null)
@@ -94,14 +92,14 @@ public class WalletService
         if (amount is null)
             return;
 
-        RunWalletOperation(() =>
+        await RunWalletOperation(async () =>
         {
-            _walletRepository.Deposit(playerId.Value, currency.Value, amount.Value);
+            await _walletRepository.Deposit(playerId.Value, currency.Value, amount.Value);
             Console.WriteLine("Deposit successful.");
         });
     }
 
-    public void WithdrawFromWallet()
+    public async Task WithdrawFromWallet()
     {
         var playerId = Prompts.PromptPlayerId();
         if (playerId is null)
@@ -115,14 +113,14 @@ public class WalletService
         if (amount is null)
             return;
 
-        RunWalletOperation(() =>
+        await RunWalletOperation(async () =>
         {
-            _walletRepository.Withdraw(playerId.Value, currency.Value, amount.Value);
+            await _walletRepository.Withdraw(playerId.Value, currency.Value, amount.Value);
             Console.WriteLine("Withdrawal successful.");
         });
     }
 
-    public void BlockWallet()
+    public async Task BlockWallet()
     {
         var playerId = Prompts.PromptPlayerId();
         if (playerId is null)
@@ -132,14 +130,14 @@ public class WalletService
         if (currency is null)
             return;
 
-        RunWalletOperation(() =>
+        await RunWalletOperation(async () =>
         {
-            _walletRepository.Block(playerId.Value, currency.Value);
+            await _walletRepository.Block(playerId.Value, currency.Value);
             Console.WriteLine("Wallet blocked.");
         });
     }
 
-    public void UnblockWallet()
+    public async Task UnblockWallet()
     {
         var playerId = Prompts.PromptPlayerId();
         if (playerId is null)
@@ -149,14 +147,14 @@ public class WalletService
         if (currency is null)
             return;
 
-        RunWalletOperation(() =>
+        await RunWalletOperation(async () =>
         {
-            _walletRepository.Unblock(playerId.Value, currency.Value);
+            await _walletRepository.Unblock(playerId.Value, currency.Value);
             Console.WriteLine("Wallet unblocked.");
         });
     }
 
-    public void UpdateWalletBalance()
+    public async Task UpdateWalletBalance()
     {
         var playerId = Prompts.PromptPlayerId();
         if (playerId is null)
@@ -170,14 +168,14 @@ public class WalletService
         if (newBalance is null)
             return;
 
-        RunWalletOperation(() =>
+        await RunWalletOperation(async () =>
         {
-            _walletRepository.UpdateBalance(playerId.Value, currency.Value, newBalance.Value);
+            await _walletRepository.UpdateBalance(playerId.Value, currency.Value, newBalance.Value);
             Console.WriteLine("Balance updated.");
         });
     }
 
-    public void ApplyFundsStrategy()
+    public async Task ApplyFundsStrategy()
     {
         var playerId = Prompts.PromptPlayerId();
         if (playerId is null)
@@ -195,12 +193,11 @@ public class WalletService
         if (amount is null)
             return;
 
-        // Pick the strategy that matches the chosen operation (resolved from DI, no factory).
         var strategy = _fundsStrategies[operation.Value];
 
-        RunWalletOperation(() =>
+        await RunWalletOperation(async () =>
         {
-            var wallet = _walletRepository.GetWallet(playerId.Value, currency.Value);
+            var wallet = await _walletRepository.GetWallet(playerId.Value, currency.Value);
             strategy.Execute(wallet, amount.Value);
             _logger.LogInformation("Applied {Strategy} of {Amount} to player {PlayerId} {Currency} wallet (balance {Balance})",
                 strategy.GetType().Name, amount, playerId, currency, wallet.Balance);
@@ -208,12 +205,11 @@ public class WalletService
         });
     }
 
-    // Runs a wallet operation and turns any domain (WalletException) failure into a friendly message + log.
-    private void RunWalletOperation(Action operation)
+    private async Task RunWalletOperation(Func<Task> operation)
     {
         try
         {
-            operation();
+            await operation();
         }
         catch (WalletException ex)
         {

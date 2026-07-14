@@ -1,6 +1,7 @@
 ﻿using Application.Interfaces;
 using Domain.Entities;
 using Infrastructure.Persistence.Context;
+using Microsoft.EntityFrameworkCore;
 using NLog;
 
 namespace Infrastructure.Repositories
@@ -16,21 +17,21 @@ namespace Infrastructure.Repositories
             _context = context;
         }
 
-        public void AddPlayer(Player player)
+        public async Task AddPlayer(Player player, CancellationToken ct = default)
         {
             _context.Players.Add(player);
-            _context.SaveChanges();
+           await _context.SaveChangesAsync(ct);
             _logger.Info("Player {PlayerId} ({Name}) added with score {Score}", player.Id, player.Name, player.Score);
         }
 
-        public IEnumerable<Player> GetAllPlayers()
+        public async Task<IEnumerable<Player>> GetAllPlayers(CancellationToken ct = default)
         {
-            return _context.Players.ToList();
+            return await _context.Players.ToListAsync(ct);
         }
 
-        public void DeletePlayer(int playerId)
+        public async Task DeletePlayer(int playerId, CancellationToken ct = default)
         {
-            var player = _context.Players.FirstOrDefault(p => p.Id == playerId);
+            var player = await _context.Players.FirstOrDefaultAsync(p => p.Id == playerId, ct);
 
             if (player is null)
             {
@@ -39,19 +40,19 @@ namespace Infrastructure.Repositories
             }
 
             _context.Players.Remove(player);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync(ct);
             _logger.Info("Player {PlayerId} deleted", playerId);
         }
 
-        public Player? FindPlayer(int playerId)
+        public async Task<Player?> FindPlayer(int playerId, CancellationToken ct = default)
         {
-            return _context.Players.FirstOrDefault(p => p.Id == playerId);
+            return await _context.Players.FirstOrDefaultAsync(p => p.Id == playerId, ct);
         }
 
-        public IEnumerable<IGrouping<int, Player>> GroupPlayersByScore()
+        public async Task<IEnumerable<IGrouping<int, Player>>> GroupPlayersByScore(CancellationToken ct = default)
         {
-            return _context.Players
-                .AsEnumerable()
+            var players = await _context.Players.ToListAsync(ct);
+            return players
                 .GroupBy(player => player.Score)
                 .OrderByDescending(group => group.Key);
         }

@@ -19,6 +19,7 @@ namespace Infrastructure.Persistence.Context
             modelBuilder.Entity<Player>(entity =>
             {
                 entity.HasKey(p => p.Id);
+                entity.Property(p => p.Id).ValueGeneratedNever();
                 entity.Property(p => p.Name).IsRequired().HasMaxLength(100);
             });
 

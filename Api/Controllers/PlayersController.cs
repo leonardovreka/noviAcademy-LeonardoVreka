@@ -10,21 +10,34 @@ namespace Api.Controllers
     {
         private readonly IPlayerRepository _playerRepository;
 
-        public PlayersController(IPlayerRepository playerRepository) 
+        public PlayersController(IPlayerRepository playerRepository)
         {
             _playerRepository = playerRepository;
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] CreatePlayerRequest request, CancellationToken ct)
+        {
+            try
+            {
+                var player = new Player(GenerateId(), request.Name);
+                player.AddScore(request.Score);
+                await _playerRepository.AddPlayer(player, ct);
+                return CreatedAtAction(nameof(GetById), new { playerId = player.Id }, player);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(CancellationToken ct)
         {
             try
             {
-                var result = _playerRepository.GetAllPlayers();
-                if (result == null) return NotFound();
-
+                var result = await _playerRepository.GetAllPlayers(ct);
                 return Ok(result);
-
             }
             catch (Exception ex)
             {
@@ -32,21 +45,23 @@ namespace Api.Controllers
             }
         }
 
-        [HttpGet("{playerId:guid}")]
-        public async Task<IActionResult> GetById(int playerId)
+        [HttpGet("{playerId:int}")]
+        public async Task<IActionResult> GetById(int playerId, CancellationToken ct)
         {
             try
             {
-                var result = _playerRepository.FindPlayer(playerId);
-                if (result == null) return NotFound();
-
+                var result = await _playerRepository.FindPlayer(playerId, ct);
+                if (result is null) return NotFound();
                 return Ok(result);
-
             }
             catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }
         }
+
+        private int GenerateId() => Random.Shared.Next(1, int.MaxValue);
     }
+
+    public record CreatePlayerRequest(string Name, int Score);
 }
