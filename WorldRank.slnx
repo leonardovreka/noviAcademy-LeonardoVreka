@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="Api/Api.csproj" Id="6e07022f-3d58-4747-a654-61d811d7fdf4" />
   <Project Path="Application/Application.csproj" Id="f056f595-3433-438b-af5e-ed7ec5c13536" />
   <Project Path="Domain/Domain.csproj" Id="82400e4d-592d-4311-86e2-90f73a0ad43a" />
   <Project Path="Infrastructure/Infrastructure.csproj" Id="2c078fab-8b46-46eb-a80d-541844de640f" />
