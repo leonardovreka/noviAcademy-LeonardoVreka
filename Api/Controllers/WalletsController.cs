@@ -1,21 +1,19 @@
-﻿using Application.Interfaces;
-using Domain.Entities;
+﻿using Application.Services;
 using Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Api.DTOs;
+
 namespace Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
     public class WalletsController : ControllerBase
     {
-        private readonly IWalletRepository _walletRepository;
-        private readonly IPlayerRepository _playerRepository;
+        private readonly WalletService _walletService;
 
-        public WalletsController(IWalletRepository walletRepository, IPlayerRepository playerRepository)
+        public WalletsController(WalletService walletService)
         {
-            _walletRepository = walletRepository;
-            _playerRepository = playerRepository;
+            _walletService = walletService;
         }
 
         [HttpPost]
@@ -23,12 +21,7 @@ namespace Api.Controllers
         {
             try
             {
-                var player = await _playerRepository.FindPlayer(request.PlayerId, ct);
-                if (player is null) return NotFound($"Player {request.PlayerId} not found");
-
-                var wallet = new Wallet(request.PlayerId, request.Currency, request.InitialBalance);
-                await _walletRepository.Add(wallet, ct);
-
+                var wallet = await _walletService.CreateWallet(request.PlayerId, request.Currency, request.InitialBalance, ct);
                 return CreatedAtAction(nameof(GetById), new { playerId = request.PlayerId, currency = request.Currency }, wallet);
             }
             catch (Exception ex)
@@ -42,7 +35,7 @@ namespace Api.Controllers
         {
             try
             {
-                var wallet = await _walletRepository.GetWallet(playerId, currency, ct);
+                var wallet = await _walletService.GetWallet(playerId, currency, ct);
                 return Ok(wallet);
             }
             catch (Exception ex)
@@ -56,8 +49,7 @@ namespace Api.Controllers
         {
             try
             {
-                await _walletRepository.Deposit(playerId, currency, request.Amount, ct);
-                var wallet = await _walletRepository.GetWallet(playerId, currency, ct);
+                var wallet = await _walletService.Deposit(playerId, currency, request.Amount, ct);
                 return Ok(wallet);
             }
             catch (Exception ex)

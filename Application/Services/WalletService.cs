@@ -1,6 +1,7 @@
 ﻿using Application.Interfaces;
 using Application.Strategies;
 using Domain.Entities;
+using Domain.Enums;
 using Domain.Exceptions;
 using Microsoft.Extensions.Logging;
 
@@ -216,5 +217,24 @@ public class WalletService
             _logger.LogWarning(ex, "Wallet operation failed");
             Console.WriteLine($"Error: {ex.Message}");
         }
+    }
+
+    public async Task<Wallet> CreateWallet(int playerId, Currency currency, decimal initialBalance, CancellationToken ct = default)
+    {
+        var player = await _playerRepository.FindPlayer(playerId, ct);
+        if (player is null) throw new PlayerNotFoundException(playerId);
+
+        var wallet = new Wallet(playerId, currency, initialBalance);
+        await _walletRepository.Add(wallet, ct);
+        return wallet;
+    }
+
+    public Task<Wallet> GetWallet(int playerId, Currency currency, CancellationToken ct = default)
+        => _walletRepository.GetWallet(playerId, currency, ct);
+
+    public async Task<Wallet> Deposit(int playerId, Currency currency, decimal amount, CancellationToken ct = default)
+    {
+        await _walletRepository.Deposit(playerId, currency, amount, ct);
+        return await _walletRepository.GetWallet(playerId, currency, ct);
     }
 }

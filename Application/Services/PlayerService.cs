@@ -30,7 +30,7 @@ public class PlayerService
             return;
         }
 
-        var player = new Player(await GeneratePlayerId(), name);
+        var player = new Player(name);
         player.AddScore(score);
         await _playerRepository.AddPlayer(player);
         Console.WriteLine("Player added successfully.");
@@ -100,17 +100,17 @@ public class PlayerService
         Console.WriteLine("Player deleted (if it existed).");
     }
 
-    private async Task<int> GeneratePlayerId()
+    public async Task<Player> CreatePlayer(string name, int score, CancellationToken ct = default)
     {
-        var existingIds = (await _playerRepository.GetAllPlayers()).Select(p => p.Id).ToHashSet();
-
-        int id;
-        do
-        {
-            id = Random.Shared.Next(1, int.MaxValue);
-        }
-        while (existingIds.Contains(id));
-
-        return id;
+        var player = new Player(name);
+        player.AddScore(score);
+        await _playerRepository.AddPlayer(player, ct);
+        return player;
     }
+
+    public Task<IEnumerable<Player>> GetAllPlayers(CancellationToken ct = default)
+        => _playerRepository.GetAllPlayers(ct);
+
+    public Task<Player?> FindPlayer(int playerId, CancellationToken ct = default)
+        => _playerRepository.FindPlayer(playerId, ct);
 }
