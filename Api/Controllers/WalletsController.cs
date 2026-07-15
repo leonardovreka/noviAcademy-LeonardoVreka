@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Api.DTOs;
-using Application.Interfaces;
+﻿using Api.DTOs;
+using Application.Commands.Wallets;
+using Application.Queries.Wallets;
 using Domain.Enums;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
 {
@@ -9,11 +11,11 @@ namespace Api.Controllers
     [Route("[controller]")]
     public class WalletsController : ControllerBase
     {
-        private readonly IWalletService _walletService;
+        private readonly ISender _mediator;
 
-        public WalletsController(IWalletService walletService)
+        public WalletsController(ISender mediator)
         {
-            _walletService = walletService;
+            _mediator = mediator;
         }
 
         [HttpPost]
@@ -21,7 +23,8 @@ namespace Api.Controllers
         {
             try
             {
-                var wallet = await _walletService.CreateWallet(request.PlayerId, request.Currency, request.InitialBalance, ct);
+                await _mediator.Send(new CreateWalletCommand(request.PlayerId, request.Currency, request.InitialBalance), ct);
+                var wallet = await _mediator.Send(new GetWalletQuery(request.PlayerId, request.Currency), ct);
                 return CreatedAtAction(nameof(GetById), new { playerId = request.PlayerId, currency = request.Currency }, wallet);
             }
             catch (Exception ex)
@@ -35,7 +38,7 @@ namespace Api.Controllers
         {
             try
             {
-                var wallet = await _walletService.GetWallet(playerId, currency, ct);
+                var wallet = await _mediator.Send(new GetWalletQuery(playerId, currency), ct);
                 return Ok(wallet);
             }
             catch (Exception ex)
@@ -49,8 +52,8 @@ namespace Api.Controllers
         {
             try
             {
-                await _walletService.Deposit(playerId, currency, request.Amount, ct);
-                var wallet = await _walletService.GetWallet(playerId, currency, ct);
+                await _mediator.Send(new DepositCommand(playerId, currency, request.Amount), ct);
+                var wallet = await _mediator.Send(new GetWalletQuery(playerId, currency), ct);
                 return Ok(wallet);
             }
             catch (Exception ex)
