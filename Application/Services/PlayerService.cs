@@ -1,15 +1,18 @@
 ﻿using Application.Interfaces;
 using Domain.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Services;
 
 public class PlayerService
 {
     private readonly IPlayerRepository _playerRepository;
+    private readonly ILogger<PlayerService> _logger;
 
-    public PlayerService(IPlayerRepository playerRepository)
+    public PlayerService(IPlayerRepository playerRepository, ILogger<PlayerService> logger)
     {
         _playerRepository = playerRepository;
+        _logger = logger;
     }
 
     public void AddPlayer()
@@ -33,6 +36,7 @@ public class PlayerService
         var player = new Player(GeneratePlayerId(), name);
         player.AddScore(score);
         _playerRepository.AddPlayer(player);
+        _logger.LogInformation("Added new player: {Name}, with score {Score}", player.Name, player.Score);
         Console.WriteLine("Player added successfully.");
     }
 
@@ -96,8 +100,16 @@ public class PlayerService
         if (playerId is null)
             return;
 
-        _playerRepository.DeletePlayer(playerId.Value);
-        Console.WriteLine("Player deleted (if it existed).");
+        if (_playerRepository.DeletePlayer(playerId.Value))
+        {
+            _logger.LogInformation("Player {PlayerId} deleted successfully.", playerId.Value);
+            Console.WriteLine("Player deleted successfully.");
+        }
+        else
+        {
+            _logger.LogWarning("Delete skipped: player {PlayerId} not found.", playerId.Value);
+            Console.WriteLine("No player found with the given ID.");
+        }
     }
 
     // Generates a random, unique player id (avoids collisions with already-registered players).

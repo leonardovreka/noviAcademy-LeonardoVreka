@@ -48,6 +48,7 @@ public class WalletService
 
             var wallet = new Wallet(playerId.Value, currency.Value, balance.Value);
             _walletRepository.Add(wallet);
+            _logger.LogInformation("Wallet created for player {PlayerId} in {Currency} with balance {Balance}", wallet.PlayerId, wallet.Currency, wallet.Balance);
             Console.WriteLine("Wallet added successfully.");
         }
         catch (PlayerNotFoundException ex)
@@ -96,7 +97,8 @@ public class WalletService
 
         RunWalletOperation(() =>
         {
-            _walletRepository.Deposit(playerId.Value, currency.Value, amount.Value);
+            var wallet = _walletRepository.Deposit(playerId.Value, currency.Value, amount.Value);
+            _logger.LogInformation("Deposited {Amount} to player {PlayerId} {Currency} wallet (balance {Balance})", amount, wallet.PlayerId, wallet.Currency, wallet.Balance);
             Console.WriteLine("Deposit successful.");
         });
     }
@@ -117,7 +119,8 @@ public class WalletService
 
         RunWalletOperation(() =>
         {
-            _walletRepository.Withdraw(playerId.Value, currency.Value, amount.Value);
+            var wallet = _walletRepository.Withdraw(playerId.Value, currency.Value, amount.Value);
+            _logger.LogInformation("Withdrew {Amount} from player {PlayerId} {Currency} wallet (balance {Balance})", amount, wallet.PlayerId, wallet.Currency, wallet.Balance);
             Console.WriteLine("Withdrawal successful.");
         });
     }
@@ -135,6 +138,7 @@ public class WalletService
         RunWalletOperation(() =>
         {
             _walletRepository.Block(playerId.Value, currency.Value);
+            _logger.LogInformation("Player {PlayerId} {Currency} wallet blocked", playerId, currency);
             Console.WriteLine("Wallet blocked.");
         });
     }
@@ -152,6 +156,7 @@ public class WalletService
         RunWalletOperation(() =>
         {
             _walletRepository.Unblock(playerId.Value, currency.Value);
+            _logger.LogInformation("Player {PlayerId} {Currency} wallet unblocked", playerId, currency);
             Console.WriteLine("Wallet unblocked.");
         });
     }
@@ -173,6 +178,7 @@ public class WalletService
         RunWalletOperation(() =>
         {
             _walletRepository.UpdateBalance(playerId.Value, currency.Value, newBalance.Value);
+            _logger.LogInformation("Player {PlayerId} {Currency} wallet balance set to {Balance}", playerId, currency, newBalance);
             Console.WriteLine("Balance updated.");
         });
     }
@@ -195,7 +201,6 @@ public class WalletService
         if (amount is null)
             return;
 
-        // Pick the strategy that matches the chosen operation (resolved from DI, no factory).
         var strategy = _fundsStrategies[operation.Value];
 
         RunWalletOperation(() =>
@@ -208,7 +213,6 @@ public class WalletService
         });
     }
 
-    // Runs a wallet operation and turns any domain (WalletException) failure into a friendly message + log.
     private void RunWalletOperation(Action operation)
     {
         try

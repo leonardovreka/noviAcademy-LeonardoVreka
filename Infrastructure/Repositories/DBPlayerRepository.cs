@@ -1,13 +1,12 @@
 ﻿using Application.Interfaces;
 using Domain.Entities;
 using Infrastructure.Persistence.Context;
-using NLog;
 
 namespace Infrastructure.Repositories
 {
     public class DBPlayerRepository : IPlayerRepository
     {
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+
         private readonly WorldRankDbContext _context;
 
         //constructor
@@ -20,7 +19,6 @@ namespace Infrastructure.Repositories
         {
             _context.Players.Add(player);
             _context.SaveChanges();
-            _logger.Info("Player {PlayerId} ({Name}) added with score {Score}", player.Id, player.Name, player.Score);
         }
 
         public IEnumerable<Player> GetAllPlayers()
@@ -28,19 +26,18 @@ namespace Infrastructure.Repositories
             return _context.Players.ToList();
         }
 
-        public void DeletePlayer(int playerId)
+        public bool DeletePlayer(int playerId)
         {
             var player = _context.Players.FirstOrDefault(p => p.Id == playerId);
 
             if (player is null)
             {
-                _logger.Warn("Delete skipped: player {PlayerId} not found", playerId);
-                return;
+                return false;
             }
 
             _context.Players.Remove(player);
             _context.SaveChanges();
-            _logger.Info("Player {PlayerId} deleted", playerId);
+            return true;
         }
 
         public Player? FindPlayer(int playerId)

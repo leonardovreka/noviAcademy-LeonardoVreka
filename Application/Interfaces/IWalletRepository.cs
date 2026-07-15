@@ -13,9 +13,9 @@ namespace Application.Interfaces
 
         void UpdateBalance(int playerId, Currency currency, decimal newBalance);
 
-		void Deposit(int playerId, Currency currency, decimal amount);
+		Wallet Deposit(int playerId, Currency currency, decimal amount);
 
-		void Withdraw(int playerId, Currency currency, decimal amount);
+		Wallet Withdraw(int playerId, Currency currency, decimal amount);
 
 		void Block(int playerId, Currency currency);
 

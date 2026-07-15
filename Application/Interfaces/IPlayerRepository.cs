@@ -8,7 +8,7 @@ namespace Application.Interfaces
 
 		IEnumerable<Player> GetAllPlayers();
 
-		void DeletePlayer(int playerId);
+		bool DeletePlayer(int playerId);
 
 		Player? FindPlayer(int playerId);
 
