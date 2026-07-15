@@ -2,7 +2,7 @@
 using Domain.Entities;
 using Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
-
+using Api.DTOs;
 namespace Api.Controllers
 {
     [ApiController]
@@ -66,7 +66,4 @@ namespace Api.Controllers
             }
         }
     }
-
-    public record CreateWalletRequest(int PlayerId, Currency Currency, decimal InitialBalance);
-    public record DepositRequest(decimal Amount);
 }

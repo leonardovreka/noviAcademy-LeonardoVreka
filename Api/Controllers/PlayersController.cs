@@ -1,6 +1,7 @@
 using Application.Interfaces;
 using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Api.DTOs;
 
 namespace Api.Controllers
 {
@@ -60,6 +61,4 @@ namespace Api.Controllers
             }
         }
     }
-
-    public record CreatePlayerRequest(string Name, int Score);
 }
