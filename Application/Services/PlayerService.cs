@@ -33,7 +33,7 @@ public class PlayerService
             return;
         }
 
-        var player = new Player(GeneratePlayerId(), name);
+        var player = new Player(name);
         player.AddScore(score);
         _playerRepository.AddPlayer(player);
         _logger.LogInformation("Added new player: {Name}, with score {Score}", player.Name, player.Score);
