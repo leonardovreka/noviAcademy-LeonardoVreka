@@ -3,14 +3,14 @@ using Application.Services;
 using Application.Strategies;
 using Infrastructure;
 using Infrastructure.Persistence.Context;
-using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using NLog.Extensions.Logging;
 using System.Text.Json.Serialization;
-using Application.Commands.Players;
-
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
 
 // Logging via NLog (same nlog.config layout as the Console app).
 builder.Logging.ClearProviders();
@@ -20,14 +20,8 @@ builder.Services.AddDbContext<WorldRankDbContext>(options => {
     options.UseSqlServer("Server=localhost;Database=WorldRank;Integrated Security=true; TrustServerCertificate=true");
 });
 
-//services/Repositories
-builder.Services.AddScoped<IPlayerRepository, DBPlayerRepository>();
-builder.Services.AddScoped<IWalletRepository, DBWalletRepository>();
-
 //Services
 builder.Services.AddScoped<IPlayerService, PlayerService>();
-builder.Services.AddMediatR(cfg =>
-    cfg.RegisterServicesFromAssemblyContaining<CreatePlayerCommand>());
 builder.Services.AddScoped<IWalletService, WalletService>();
 
 //strategy
@@ -47,6 +41,12 @@ builder.Services.AddControllers()
 // Swagger / OpenAPI — interactive API docs at /swagger.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
+{
+    containerBuilder.RegisterModule<Application.ApplicationModule>();
+    containerBuilder.RegisterModule<Infrastructure.InfrastructureModule>();
+});
 
 var app = builder.Build();
 
