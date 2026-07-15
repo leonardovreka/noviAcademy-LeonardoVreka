@@ -1,7 +1,6 @@
-﻿using Application.Services;
-using Domain.Enums;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Api.DTOs;
+using Application.Interfaces;
 
 namespace Api.Controllers
 {
@@ -9,9 +8,9 @@ namespace Api.Controllers
     [Route("[controller]")]
     public class WalletsController : ControllerBase
     {
-        private readonly WalletService _walletService;
+        private readonly IWalletService _walletService;
 
-        public WalletsController(WalletService walletService)
+        public WalletsController(IWalletService walletService)
         {
             _walletService = walletService;
         }
@@ -49,7 +48,8 @@ namespace Api.Controllers
         {
             try
             {
-                var wallet = await _walletService.Deposit(playerId, currency, request.Amount, ct);
+                await _walletService.Deposit(playerId, currency, request.Amount, ct);
+                var wallet = await _walletService.GetWallet(playerId, currency, ct);
                 return Ok(wallet);
             }
             catch (Exception ex)

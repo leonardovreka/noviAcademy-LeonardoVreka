@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Application.Services;
 
-public class WalletService
+public class WalletService : IWalletService
 {
     private readonly IWalletRepository _walletRepository;
     private readonly IPlayerRepository _playerRepository;
@@ -232,9 +232,6 @@ public class WalletService
     public Task<Wallet> GetWallet(int playerId, Currency currency, CancellationToken ct = default)
         => _walletRepository.GetWallet(playerId, currency, ct);
 
-    public async Task<Wallet> Deposit(int playerId, Currency currency, decimal amount, CancellationToken ct = default)
-    {
-        await _walletRepository.Deposit(playerId, currency, amount, ct);
-        return await _walletRepository.GetWallet(playerId, currency, ct);
-    }
+    public Task Deposit(int playerId, Currency currency, decimal amount, CancellationToken ct = default)
+        => _walletRepository.Deposit(playerId, currency, amount, ct);
 }

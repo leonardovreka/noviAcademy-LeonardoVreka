@@ -3,7 +3,7 @@ using Domain.Entities;
 
 namespace Application.Services;
 
-public class PlayerService
+public class PlayerService : IPlayerService
 {
     private readonly IPlayerRepository _playerRepository;
 
@@ -100,7 +100,7 @@ public class PlayerService
         Console.WriteLine("Player deleted (if it existed).");
     }
 
-    public async Task<Player> CreatePlayer(string name, int score, CancellationToken ct = default)
+    public async Task<Player> AddPlayer(string name, int score, CancellationToken ct = default)
     {
         var player = new Player(name);
         player.AddScore(score);
@@ -111,6 +111,6 @@ public class PlayerService
     public Task<IEnumerable<Player>> GetAllPlayers(CancellationToken ct = default)
         => _playerRepository.GetAllPlayers(ct);
 
-    public Task<Player?> FindPlayer(int playerId, CancellationToken ct = default)
+    public Task<Player?> GetPlayer(int playerId, CancellationToken ct = default)
         => _playerRepository.FindPlayer(playerId, ct);
 }

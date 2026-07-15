@@ -1,5 +1,5 @@
 using Api.DTOs;
-using Application.Services;
+using Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
@@ -8,9 +8,9 @@ namespace Api.Controllers
     [Route("[controller]")]
     public class PlayersController : ControllerBase
     {
-        private readonly PlayerService _playerService;
+        private readonly IPlayerService _playerService;
 
-        public PlayersController(PlayerService playerService)
+        public PlayersController(IPlayerService playerService)
         {
             _playerService = playerService;
         }
@@ -20,7 +20,7 @@ namespace Api.Controllers
         {
             try
             {
-                var player = await _playerService.CreatePlayer(request.Name, request.Score, ct);          
+                var player = await _playerService.AddPlayer(request.Name, request.Score, ct);
                 return CreatedAtAction(nameof(GetById), new { playerId = player.Id }, player);
             }
             catch (Exception ex)
@@ -48,7 +48,7 @@ namespace Api.Controllers
         {
             try
             {
-                var result = await _playerService.FindPlayer(playerId, ct);
+                var result = await _playerService.GetPlayer(playerId, ct);
                 if (result is null) return NotFound();
                 return Ok(result);
             }

@@ -24,8 +24,8 @@ builder.Services.AddScoped<IPlayerRepository, DBPlayerRepository>();
 builder.Services.AddScoped<IWalletRepository, DBWalletRepository>();
 
 //Services
-//builder.Services.AddScoped<IPlayerService, PlayerService>();
-//builder.Services.AddScoped<IWalletService, WalletService>();
+builder.Services.AddScoped<IPlayerService, PlayerService>();
+builder.Services.AddScoped<IWalletService, WalletService>();
 
 //strategy
 //builder.Services.AddSingleton<IFundsStrategy, AddFundsStrategy>();
