@@ -7,6 +7,7 @@ using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using NLog.Extensions.Logging;
 using System.Text.Json.Serialization;
+using Application.Commands.Players;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,6 +26,8 @@ builder.Services.AddScoped<IWalletRepository, DBWalletRepository>();
 
 //Services
 builder.Services.AddScoped<IPlayerService, PlayerService>();
+builder.Services.AddMediatR(cfg =>
+    cfg.RegisterServicesFromAssemblyContaining<CreatePlayerCommand>());
 builder.Services.AddScoped<IWalletService, WalletService>();
 
 //strategy

@@ -1,5 +1,7 @@
 using Api.DTOs;
-using Application.Interfaces;
+using Application.Commands.Players;
+using Application.Queries.Players;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
@@ -8,11 +10,11 @@ namespace Api.Controllers
     [Route("[controller]")]
     public class PlayersController : ControllerBase
     {
-        private readonly IPlayerService _playerService;
+        private readonly ISender _mediator;
 
-        public PlayersController(IPlayerService playerService)
+        public PlayersController(ISender mediator)
         {
-            _playerService = playerService;
+            _mediator = mediator;
         }
 
         [HttpPost]
@@ -20,8 +22,9 @@ namespace Api.Controllers
         {
             try
             {
-                var player = await _playerService.AddPlayer(request.Name, request.Score, ct);
-                return CreatedAtAction(nameof(GetById), new { playerId = player.Id }, player);
+                var playerId = await _mediator.Send(new CreatePlayerCommand(request.Name, request.Score), ct);
+                var player = await _mediator.Send(new GetPlayerQuery(playerId), ct);
+                return CreatedAtAction(nameof(GetById), new { playerId }, player);
             }
             catch (Exception ex)
             {
@@ -34,7 +37,7 @@ namespace Api.Controllers
         {
             try
             {
-                var result = await _playerService.GetAllPlayers(ct);
+                var result = await _mediator.Send(new GetAllPlayersQuery(), ct);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -48,7 +51,7 @@ namespace Api.Controllers
         {
             try
             {
-                var result = await _playerService.GetPlayer(playerId, ct);
+                var result = await _mediator.Send(new GetPlayerQuery(playerId), ct);
                 if (result is null) return NotFound();
                 return Ok(result);
             }
