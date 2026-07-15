@@ -5,8 +5,8 @@ namespace Domain.Entities
 {
 	public class Wallet : IWallet
 	{
-		public Currency Currency { get; private set; }
-		public int PlayerId { get; private set; }
+		public Currency Currency { get; }
+		public int PlayerId { get; }
 		public decimal Balance { get; private set; }
 		public bool IsBlocked { get; private set; }
 

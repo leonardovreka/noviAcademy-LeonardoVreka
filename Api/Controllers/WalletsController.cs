@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Api.DTOs;
 using Application.Interfaces;
+using Domain.Enums;
 
 namespace Api.Controllers
 {
