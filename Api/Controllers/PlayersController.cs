@@ -20,7 +20,7 @@ namespace Api.Controllers
         {
             try
             {
-                var player = new Player(GenerateId(), request.Name);
+                var player = new Player(request.Name);
                 player.AddScore(request.Score);
                 await _playerRepository.AddPlayer(player, ct);
                 return CreatedAtAction(nameof(GetById), new { playerId = player.Id }, player);
@@ -59,8 +59,6 @@ namespace Api.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
-
-        private int GenerateId() => Random.Shared.Next(1, int.MaxValue);
     }
 
     public record CreatePlayerRequest(string Name, int Score);

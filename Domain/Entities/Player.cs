@@ -11,12 +11,11 @@ public class Player : IPlayer
         Name = string.Empty;
     }
 
-    public Player(int id, string name)
+    public Player(string name)
 	{
 		if (string.IsNullOrWhiteSpace(name))
 			throw new ArgumentException("Name cannot be empty.", nameof(name));
 
-		Id = id;
 		Name = name;
 		Score = 0;
 	}
