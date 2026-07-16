@@ -6,12 +6,16 @@ public class Player : IPlayer
 	public string Name { get; private set; }
 	public int Score { get; private set; }
 
-	public Player(int id, string name)
+    private Player()
+    {
+        Name = string.Empty;
+    }
+
+    public Player(string name)
 	{
 		if (string.IsNullOrWhiteSpace(name))
 			throw new ArgumentException("Name cannot be empty.", nameof(name));
 
-		Id = id;
 		Name = name;
 		Score = 0;
 	}

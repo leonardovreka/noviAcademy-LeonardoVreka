@@ -37,7 +37,7 @@ while (true)
     Console.WriteLine("0. Exit");
     Console.Write("> ");
 
-    Action? action = Console.ReadLine() switch
+    Func<Task>? action = Console.ReadLine() switch
     {
         "1" => playerService.AddPlayer,
         "2" => playerService.ListPlayers,
@@ -54,7 +54,7 @@ while (true)
         "13" => walletService.UpdateWalletBalance,
         "14" => walletService.ApplyFundsStrategy,
         "0" => null,
-        _ => () => Console.WriteLine("Unknown option.")
+        _ => () => { Console.WriteLine("Unknown option."); return Task.CompletedTask; }
     };
 
     if (action is null)
@@ -66,7 +66,7 @@ while (true)
 
     try
     {
-        action();
+        await action();
     }
     catch (Exception ex)
     {
